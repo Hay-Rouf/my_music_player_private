@@ -119,26 +119,26 @@ class _BannerWidgetState extends State<BannerWidget> {
   BannerAd? bannerAd;
 
   Future<void> loadBanner() async {
-    await BannerAd(
-      adUnitId: kDebugMode ? AdUnits.bannerTest : AdUnits.banner,
-      size: AdSize.banner,
-      request: const AdRequest(),
-      listener: BannerAdListener(
-        onAdLoaded: (ad) {
-          bannerAd = ad as BannerAd;
-          setState(() {});
-        },
-        onAdFailedToLoad: (ad, error) {
-          // Releases an ad resource when it fails to load
-          ad.dispose();
-          if (kDebugMode) {
-            print(
-                'Ad load failed (code=${error.code} message=${error.message})');
-          }
-        },
-      ),
-    ).load();
-    setState(() {});
+    // await BannerAd(
+    //   adUnitId: kDebugMode ? AdUnits.bannerTest : AdUnits.banner,
+    //   size: AdSize.banner,
+    //   request: const AdRequest(),
+    //   listener: BannerAdListener(
+    //     onAdLoaded: (ad) {
+    //       bannerAd = ad as BannerAd;
+    //       setState(() {});
+    //     },
+    //     onAdFailedToLoad: (ad, error) {
+    //       Releases an ad resource when it fails to load
+          // ad.dispose();
+          // if (kDebugMode) {
+          //   print(
+          //       'Ad load failed (code=${error.code} message=${error.message})');
+          // }
+        // },
+      // ),
+    // ).load();
+    // setState(() {});
   }
 
   @override
@@ -242,55 +242,55 @@ class NativeAdsWidgetState extends State<NativeAdsWidget> {
 
   /// Loads a native ad.
   Future<void> loadAd() async {
-    _nativeAd = NativeAd(
-      adUnitId: kDebugMode ? AdUnits.nativeTest : AdUnits.native,
-      listener: NativeAdListener(
-        onAdLoaded: (ad) {
-          debugPrint('$NativeAd loaded.');
-          setState(() {
-            _nativeAdIsLoaded = true;
-          });
-        },
-        onAdFailedToLoad: (ad, error) {
-          // Dispose the ad here to free resources.
-          debugPrint('$NativeAd failed to load: $error');
-          setState(() {
-            _nativeAdIsLoaded = false;
-          });
-          ad.dispose();
-        },
-      ),
-      request: const AdRequest(),
-      // Styling
-      nativeTemplateStyle: NativeTemplateStyle(
-        // Required: Choose a template.
-        templateType: TemplateType.medium,
-        // Optional: Customize the ad's style.
-        mainBackgroundColor: Colors.transparent,
-        cornerRadius: 10.0,
-        // callToActionTextStyle: NativeTemplateTextStyle(
-        //     textColor: Colors.cyan,
-        //     backgroundColor: Colors.red,
-        //     style: NativeTemplateFontStyle.monospace,
-        //     size: 16.0),
-        // primaryTextStyle: NativeTemplateTextStyle(
-        //     textColor: Colors.red,
-        //     backgroundColor: Colors.cyan,
-        //     style: NativeTemplateFontStyle.italic,
-        //     size: 16.0),
-        // secondaryTextStyle: NativeTemplateTextStyle(
-        //     textColor: Colors.green,
-        //     backgroundColor: Colors.black,
-        //     style: NativeTemplateFontStyle.bold,
-        //     size: 16.0),
-        // tertiaryTextStyle: NativeTemplateTextStyle(
-        //     textColor: Colors.brown,
-        //     backgroundColor: Colors.amber,
-        //     style: NativeTemplateFontStyle.normal,
-        //     size: 16.0),
-      ),
-    );
-    await _nativeAd?.load();
+    // _nativeAd = NativeAd(
+    //   adUnitId: kDebugMode ? AdUnits.nativeTest : AdUnits.native,
+    //   listener: NativeAdListener(
+    //     onAdLoaded: (ad) {
+    //       debugPrint('$NativeAd loaded.');
+    //       setState(() {
+    //         _nativeAdIsLoaded = true;
+    //       });
+    //     },
+    //     onAdFailedToLoad: (ad, error) {
+    //       // Dispose the ad here to free resources.
+    //       debugPrint('$NativeAd failed to load: $error');
+    //       setState(() {
+    //         _nativeAdIsLoaded = false;
+    //       });
+    //       ad.dispose();
+    //     },
+    //   ),
+    //   request: const AdRequest(),
+    //   // Styling
+    //   nativeTemplateStyle: NativeTemplateStyle(
+    //     // Required: Choose a template.
+    //     templateType: TemplateType.medium,
+    //     // Optional: Customize the ad's style.
+    //     mainBackgroundColor: Colors.transparent,
+    //     cornerRadius: 10.0,
+    //     // callToActionTextStyle: NativeTemplateTextStyle(
+    //     //     textColor: Colors.cyan,
+    //     //     backgroundColor: Colors.red,
+    //     //     style: NativeTemplateFontStyle.monospace,
+    //     //     size: 16.0),
+    //     // primaryTextStyle: NativeTemplateTextStyle(
+    //     //     textColor: Colors.red,
+    //     //     backgroundColor: Colors.cyan,
+    //     //     style: NativeTemplateFontStyle.italic,
+    //     //     size: 16.0),
+    //     // secondaryTextStyle: NativeTemplateTextStyle(
+    //     //     textColor: Colors.green,
+    //     //     backgroundColor: Colors.black,
+    //     //     style: NativeTemplateFontStyle.bold,
+    //     //     size: 16.0),
+    //     // tertiaryTextStyle: NativeTemplateTextStyle(
+    //     //     textColor: Colors.brown,
+    //     //     backgroundColor: Colors.amber,
+    //     //     style: NativeTemplateFontStyle.normal,
+    //     //     size: 16.0),
+    //   ),
+    // );
+    // await _nativeAd?.load();
   }
 
   @override

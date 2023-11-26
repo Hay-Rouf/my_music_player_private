@@ -1,7 +1,10 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:on_audio_query/on_audio_query.dart';
 
 import '../constants.dart';
+
 //
 // class SearchPage extends StatefulWidget {
 //   const SearchPage({super.key});
@@ -62,30 +65,34 @@ class CustomDelegate extends SearchDelegate<String> {
 
   @override
   Widget buildSuggestions(BuildContext context) {
-    List<AudioModel> listToShow;
+    List<SongModel> listToShow;
     if (query.isNotEmpty) {
-      listToShow = controller.allMusicData.where((AudioModel e) {
-        bool search = e.id
+      listToShow = songModels.where((SongModel e) {
+        bool search = e.title
             .contains(RegExp(query.replaceAll(' ', '-'), caseSensitive: false));
         return search;
       }).toList();
     } else {
-      listToShow = controller.allMusicData;
+      listToShow = songModels;
     }
     // && e.toLowerCase().startsWith(query)
     return ListView.builder(
       itemCount: listToShow.length,
       itemBuilder: (_, i) {
-        AudioModel dataItem = listToShow[i];
+        SongModel dataItem = listToShow[i];
         return ListTile(
           onTap: () {
-            controller.setPlayer(
-              filesData: controller.allMusicData,
-              initIndex: controller.allMusicData.indexOf(dataItem),
-            );
+            // controller.setPlayer(
+            //   filesData: controller.allMusicData,
+            //   initIndex: controller.allMusicData.indexOf(dataItem),
+            // );
           },
-          leading: Icon(Icons.music_note),
-          title: Text(dataItem.id),
+          // leading: MusicIconWidget(
+          //   iconData: CupertinoIcons.music_note_2,
+          //   type: ArtworkType.AUDIO,
+          //   id: dataItem.id,
+          // ),
+          title: Text(dataItem.title),
         );
         // var noun = listToShow[i];
         // return ListTile(

@@ -57,25 +57,23 @@ class PlayerScreen extends GetView<MainController> {
                 builder: (_, snapshot) {
                   if (snapshot.hasData) {
                     int index = snapshot.data!;
-                    return Image.asset(
-                      assetImage,
-                      height: MediaQuery.of(context).size.height * .45,
+                    return Image.memory(
+                      controller.currentFolder[index].imageList,
+                      // height: MediaQuery.of(context).size.height * .45,
                       fit: BoxFit.cover,
                     );
                   }
                   return Image.asset(
                     assetImage,
-                    height: MediaQuery.of(context).size.height * .45,
+                    // height: MediaQuery.of(context).size.height * .45,
                     fit: BoxFit.cover,
                   );
                 }),
-            ClipRRect(
-              child: BackdropFilter(
-                filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-                child: Container(
-                  color: Colors.black.withOpacity(.4),
-                  alignment: Alignment.center,
-                ),
+            BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+              child: Container(
+                color: Colors.black.withOpacity(.4),
+                alignment: Alignment.center,
               ),
             ),
             Padding(
@@ -84,32 +82,37 @@ class PlayerScreen extends GetView<MainController> {
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   const SizedBox(height: 10),
+                  // ClipRRect(
+                  //   borderRadius: const BorderRadius.all(Radius.circular(30)),
+                  //   child: NativeAdsWidget(
+                  //     widget: Image.asset(
+                  //       assetImage,
+                  //       height: MediaQuery.of(context).size.height * .45,
+                  //       fit: BoxFit.cover,
+                  //     ),
+                  //   ),
+                  // ),
                   ClipRRect(
                     borderRadius: const BorderRadius.all(Radius.circular(30)),
-                    child: NativeAdsWidget(
-                      widget: Image.asset(
-                        assetImage,
-                        height: MediaQuery.of(context).size.height * .45,
-                        fit: BoxFit.cover,
-                      ),
-                    ),
-                    // StreamBuilder(
-                    //     stream: controller.currentIndexStream,
-                    //     builder: (_, snapshot) {
-                    //       if (snapshot.hasData) {
-                    //         int index = snapshot.data!;
-                    //         return Image.asset(
-                    //           assetImage,
-                    //           height: MediaQuery.of(context).size.height * .45,
-                    //           fit: BoxFit.cover,
-                    //         );
-                    //       }
-                    //       return Image.asset(
-                    //         assetImage,
-                    //         height: MediaQuery.of(context).size.height * .45,
-                    //         fit: BoxFit.cover,
-                    //       );
-                    //     }),
+                    child: StreamBuilder(
+                        stream: controller.currentIndexStream,
+                        builder: (_, snapshot) {
+                          if (snapshot.hasData) {
+                            int index = snapshot.data!;
+                            return NativeAdsWidget(
+                              widget: Image.memory(
+                                controller.currentFolder[index].imageList,
+                                height: MediaQuery.of(context).size.height * .45,
+                                fit: BoxFit.cover,
+                              ),
+                            );
+                          }
+                          return Image.asset(
+                            assetImage,
+                            height: MediaQuery.of(context).size.height * .45,
+                            fit: BoxFit.cover,
+                          );
+                        }),
                   ),
                   const SizedBox(height: 10),
                   StreamBuilder(
@@ -118,7 +121,8 @@ class PlayerScreen extends GetView<MainController> {
                         if (snapshot.hasData) {
                           int index = snapshot.data!;
                           return Text(
-                            controller.currentFolder[index].artist,
+                            controller.currentFolder[index].artist ??
+                                "Unknown Artist",
                             style:
                                 const TextStyle(fontSize: 20, color: myWhite),
                           );

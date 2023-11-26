@@ -1,45 +1,49 @@
+import 'dart:io';
+import 'dart:typed_data';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:get/get.dart';
 import 'package:just_audio/just_audio.dart';
+import 'package:on_audio_query/on_audio_query.dart';
 
 import '../constants.dart';
 
 class Folders extends GetView<MainController> {
-  const Folders({Key? key}) : super(key: key);
+  const Folders({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Obx(() {
-      List<String> musics = controller.musicsFolder;
-      int adInd = musics.length <= 4 ? musics.length : 4;
-      return musics.isEmpty
+      List<String> folders = controller.paths;
+      int adInd = folders.length <= 4 ? folders.length : 4;
+      return folders.isEmpty
           ? Center(
               child: Text('No musics'),
             )
           : ListView.builder(
-              itemCount: musics.length + 1,
+              itemCount: folders.length + 1,
               itemBuilder: (_, index) {
                 if (index == adInd) {
                   return NativeAdsWidget(widget: SizedBox.shrink());
                 }
-                String data = musics[getDestinationItemIndex(index)];
+                String data = folders[getDestinationItemIndex(index)];
                 String folderName = data.split('/').last;
-                List<String> folderMusic = controller.getFolderMusics(data);
+                List<MusicModel> folderMusic = controller.getFolderMusics(data);
                 return ListTile(
                   onTap: () {
-                    print(
-                        'testFunc: ${controller.testFunc(folderMusic).length}');
-                    Get.to(() => FolderMusics(
-                          dir: data,
+                    // print(
+                    //     'testFunc: ${controller.testFunc(folderMusic).length}');
+                    Get.to(() => GetMusics(
+                          musics: folderMusic,
                           title: folderName,
                         ));
                   },
                   leading: Icon(Icons.folder),
                   title: Text(folderName),
-                  subtitle: Text(
-                    '${folderMusic.length} songs | ${data.replaceAll(folderName, ' ')}',
+                  subtitle: Subtitle(
+                    '${folderMusic.length} Song${folderMusic.length == 1 ? '' : 's'} | ${data.replaceAll(folderName, ' ')}',
                   ),
                 );
               });
@@ -47,12 +51,30 @@ class Folders extends GetView<MainController> {
   }
 }
 
-class AllSongs extends GetView<MainController> {
-  const AllSongs({Key? key}) : super(key: key);
+class Subtitle extends StatelessWidget {
+  const Subtitle(
+    this.data, {
+    super.key,
+  });
+
+  final String data;
 
   @override
   Widget build(BuildContext context) {
-    List<AudioModel> musics = controller.allMusicData;
+    return Text(
+      data,
+      maxLines: 1,
+      overflow: TextOverflow.ellipsis,
+    );
+  }
+}
+
+class AllSongs extends GetView<MainController> {
+  const AllSongs({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    List<MusicModel> musics = musicModels;
     int adInd = musics.length <= 4 ? musics.length : 4;
     return musics.isEmpty
         ? Center(
@@ -67,27 +89,70 @@ class AllSongs extends GetView<MainController> {
               if (index == adInd) {
                 return NativeAdsWidget(widget: SizedBox.shrink());
               }
-              AudioModel data = musics[getDestinationItemIndex(index)];
-              String folderName = data.id;
+              int realIndex = getDestinationItemIndex(index);
+              MusicModel music = musics[realIndex];
+              String musicName = music.displayNameWOExt;
               return ListTile(
                 onTap: () {
-                  controller.setPlayer(filesData: musics, initIndex: index);
-                  // controller.setChildren(
-                  //     currentFile: data.path,
-                  //     filesData: musics.map((e) => e.path).toList());
+                  controller.setPlayer(filesData: musics, initIndex: realIndex);
                 },
-                leading: Icon(Icons.music_note),
-                title: Text(folderName),
-                // subtitle: Text(
-                //   '${folderMusic.length} songs | ${data.replaceAll(folderName, ' ')}',
-                // ),
+                title: Text(musicName),
+                subtitle: Text(
+                  '${music.artist} | ${music.album}',
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 1,
+                ),
+                leading: ClipRRect(
+                    borderRadius: BorderRadius.circular(10),
+                    child: Image.memory(
+                      music.imageList,
+                      height: 200,
+                      width: 50,
+                      fit: BoxFit.cover,
+                    )),
               );
             });
   }
 }
 
+// class MusicIconWidget extends QueryArtworkWidget {
+//   const MusicIconWidget(
+//       {super.key,
+//       // required this.type,
+//       // required this.id,
+//       // required this.iconData,
+//       required super.id,
+//       required super.type});
+//
+//   // final ArtworkType type;
+//   // final IconData iconData;
+//   // final int id;
+//
+//   @override
+//   Widget build(BuildContext context) {
+//     return FutureBuilder<Uint8List?>(
+//       future: OnAudioQuery().queryArtwork(
+//         id,
+//         type,
+//       ),
+//       builder: (_, item) {
+//         if (item.data != null && item.data!.isNotEmpty) {
+//           return ClipRRect(
+//             borderRadius: artworkBorder ?? BorderRadius.circular(10),
+//             clipBehavior: artworkClipBehavior,
+//             child: Image.memory(
+//               item.data!,
+//             ),
+//           );
+//         }
+//         return Icon(CupertinoIcons.music_note_2);
+//       },
+//     );
+//   }
+// }
+
 class Floater extends GetView<MainController> {
-  const Floater({Key? key}) : super(key: key);
+  const Floater({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -137,39 +202,76 @@ class Floater extends GetView<MainController> {
   }
 }
 
-//   ListTile(
-//   onTap: () {
-//     // controller.getMetadata(data);
-//     controller.setChildren(currentFile: data, filesData: musics);
-//     Get.to(() => PlayerScreen());
-//   },
-//   leading: FutureBuilder(
-//       future: controller.getMusicData(data),
-//       builder: (context, snapshot) {
-//         if (snapshot.hasData) {
-//         // print('art: ${snapshot.data!.albumArt?.length}');
-//         return snapshot.data!.albumArt == null
-//             ? Icon(Icons.music_note)
-//             : Image.memory(
-//                 snapshot.data!.albumArt!,
-//                 height: 40,
-//                 // width: 40,
-//               );
-//         }
-//         print('error: ${snapshot.hasData}');
-//         return Center(child: Icon(Icons.music_note),);
-//       }),
-//   // FutureBuilder(
-//   //     future: controller.getMusicData(data),
-//   //     builder: (context, snapshot) {
-//   //       if (snapshot.hasData) {
-//   //         // print('art: ${snapshot.data!.albumArt}');
-//   //         snapshot.data!.albumArt == null
-//   //             ? Icon(Icons.music_note)
-//   //             : Image.memory(snapshot.data!.albumArt!,height: 40,width: 40,);
-//   //       }
-//   //       return Center(child: CircularProgressIndicator(),);
-//   //     }),
-//   title: Text(folderName.replaceAll('.mp3', '')),
-//   // subtitle: Divider(),
-// );
+class Albums extends GetView<MainController> {
+  const Albums({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView.builder(
+      itemCount: controller.albumModels.length,
+      itemBuilder: (context, index) {
+        AlbumModel albumModel = controller.albumModels[index];
+        List<MusicModel> albumMusics = controller.getAlbumAudio(albumModel);
+        return ListTile(
+          title: Text(albumModel.album),
+          subtitle: Subtitle(
+            '${albumModel.numOfSongs} songs | ${albumModel.artist}',
+          ),
+          onTap: () async {
+            print('Album Musics: ${albumMusics.length}');
+            Get.to(() => GetMusics(
+                  musics: albumMusics,
+                  title: albumModel.album,
+                ));
+          },
+          leading: QueryArtworkWidget(
+            id: albumModel.id,
+            type: ArtworkType.ALBUM,
+            nullArtworkWidget: Icon(
+              Icons.album,
+              size: 50,
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
+
+class Artists extends GetView<MainController> {
+  const Artists({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView.builder(
+      itemCount: controller.artistModels.length,
+      itemBuilder: (context, index) {
+        ArtistModel artistModel = controller.artistModels[index];
+        List<MusicModel> albumMusics = controller.getArtistAudio(artistModel);
+        return ListTile(
+          title: Text(artistModel.artist),
+          subtitle: Subtitle(
+            '${artistModel.numberOfTracks} tracks | ${artistModel.artist}',
+          ),
+          onTap: () async {
+            print('Album Musics: ${albumMusics.length}');
+            Get.to(() => GetMusics(
+              musics: albumMusics,
+              title: artistModel.artist,
+            ));
+          },
+          leading: QueryArtworkWidget(
+            id: artistModel.id,
+            type: ArtworkType.ARTIST,
+            nullArtworkWidget: Image.asset(
+              'assets/artist.png',
+              height: 50,
+              fit: BoxFit.cover,
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
+
